@@ -49,14 +49,12 @@ const revokeAccessToken = async (token: string) => {
       body: JSON.stringify({ access_token: token }),
     },
   );
-  const data = await response.text();
-  console.log("GitHub Response", data);
 
-  if (!data) {
-    throw new Error("Unexpected result from GitHub");
+  if (!response.ok) {
+    throw new Error("Failed to revoke access token from GitHub");
   }
 
-  return data;
+  return {};
 };
 
 const commonResponseHeaders = {
