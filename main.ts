@@ -13,7 +13,9 @@ serve(async (req: Request) => {
       throw new Error("Method Not Allowed");
     }
 
-    const { code, redirectUri } = await req.json();
+    console.log(await req.text());
+    console.log(await req.json());
+    const { code } = await req.json();
 
     return new Response(JSON.stringify({ code, redirectUri }), {
       status: 200,
