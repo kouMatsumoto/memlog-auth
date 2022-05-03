@@ -35,9 +35,6 @@ const requestAccessToken = async (
 };
 
 const revokeAccessToken = async (token: string) => {
-  const body = new FormData();
-  body.append("access_token", token);
-
   const response = await fetch(
     `https://api.github.com/applications/${CLIENT_ID}/grant`,
     {
@@ -46,7 +43,7 @@ const revokeAccessToken = async (token: string) => {
         Accept: "application/json",
         Authorization: `Basic ${btoa(`${CLIENT_ID}:${CLIENT_SECRET}`)}`,
       },
-      body,
+      body: JSON.stringify({ access_token: token }),
     },
   );
   const data = await response.json();
