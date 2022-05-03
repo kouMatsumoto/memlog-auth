@@ -18,8 +18,11 @@ export const createErrorResponse = (error: unknown) => {
 };
 
 export const parseRequest = async (req: Request) => {
+  const url = new URL(req.url);
+
   return {
-    path: new URL(req.url).pathname,
+    hostname: url.hostname,
+    pathname: url.pathname,
     method: req.method,
     body: await req.json() ?? {}, // TODO(fix): validate value is Record<string, string>
   };

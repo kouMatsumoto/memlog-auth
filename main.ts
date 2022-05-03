@@ -1,30 +1,52 @@
 import { serve } from "https://deno.land/std@0.114.0/http/server.ts";
-import { requestAccessToken, revokeAccessToken } from "./src/github.ts";
+import {
+  requestAccessTokenForDev,
+  requestAccessTokenForProd,
+  revokeAccessTokenForDev,
+  revokeAccessTokenForProd,
+} from "./src/github.ts";
 import {
   createErrorResponse,
   createSuccessResponse,
   parseRequest,
 } from "./src/server.ts";
 
-const handleLogin = async ({ code }: Record<string, string>) => {
-  return await requestAccessToken(code);
+const handleLogin = async (
+  { code }: Record<string, string>,
+  forDevelopment: boolean,
+) => {
+  return forDevelopment
+    ? await requestAccessTokenForDev(code)
+    : await requestAccessTokenForProd(code);
 };
 
-const handleLogout = async ({ token }: Record<string, string>) => {
-  return await revokeAccessToken(token);
+const handleLogout = async (
+  { token }: Record<string, string>,
+  forDevelopment: boolean,
+) => {
+  return forDevelopment
+    ? await revokeAccessTokenForDev(token)
+    : await revokeAccessTokenForProd(token);
 };
 
 serve(async (req: Request) => {
-  const { path, method, body } = await parseRequest(req);
-  console.log("Request: ", { path, method, body });
+  const { hostname, pathname, method, body } = await parseRequest(req);
+  const forDevelopment = hostname === "localhost";
+  console.log("Request: ", {
+    hostname,
+    pathname,
+    method,
+    body,
+    forDevelopment,
+  });
 
   try {
     switch (true) {
-      case path === "/login" && method === "POST": {
-        return createSuccessResponse(await handleLogin(body));
+      case pathname === "/login" && method === "POST": {
+        return createSuccessResponse(await handleLogin(body, forDevelopment));
       }
-      case path === "/logout" && method === "POST": {
-        return createSuccessResponse(await handleLogout(body));
+      case pathname === "/logout" && method === "POST": {
+        return createSuccessResponse(await handleLogout(body, forDevelopment));
       }
       default: {
         throw new Error("Unsupported operation");

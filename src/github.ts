@@ -1,12 +1,14 @@
 import { env } from "./environments.ts";
 
-export const requestAccessToken = async (
+const requestAccessToken = async (
   code: string,
+  clientId: string,
+  clientSecret: string,
 ): Promise<{ access_token: string; scope: string; token_type: string }> => {
   const body = new FormData();
-  body.append("client_id", env.githubOAuthAppConfig.dev.clientId);
-  body.append("client_secret", env.githubOAuthAppConfig.dev.clientSecret);
   body.append("code", code);
+  body.append("client_id", clientId);
+  body.append("client_secret", clientSecret);
 
   const response = await fetch("https://github.com/login/oauth/access_token", {
     method: "POST",
@@ -25,19 +27,39 @@ export const requestAccessToken = async (
   return data;
 };
 
+export const requestAccessTokenForDev = (code: string) => {
+  return requestAccessToken(
+    code,
+    env.githubOAuthAppConfig.dev.clientId,
+    env.githubOAuthAppConfig.dev.clientSecret,
+  );
+};
+
+export const requestAccessTokenForProd = (code: string) => {
+  return requestAccessToken(
+    code,
+    env.githubOAuthAppConfig.prod.clientId,
+    env.githubOAuthAppConfig.prod.clientSecret,
+  );
+};
+
 /**
  * https://docs.github.com/en/rest/apps/oauth-applications#delete-an-app-authorization
  */
-export const revokeAccessToken = async (token: string) => {
+const revokeAccessToken = async (
+  token: string,
+  clientId: string,
+  clientSecret: string,
+) => {
   const response = await fetch(
-    `https://api.github.com/applications/${env.githubOAuthAppConfig.dev.clientId}/grant`,
+    `https://api.github.com/applications/${clientId}/grant`,
     {
       method: "DELETE",
       headers: {
         Accept: "application/vnd.github.v3+json",
         Authorization: `Basic ${
           btoa(
-            `${env.githubOAuthAppConfig.dev.clientId}:${env.githubOAuthAppConfig.dev.clientSecret}`,
+            `${clientId}:${clientSecret}`,
           )
         }`,
       },
@@ -50,4 +72,20 @@ export const revokeAccessToken = async (token: string) => {
   }
 
   return {};
+};
+
+export const revokeAccessTokenForDev = (token: string) => {
+  return revokeAccessToken(
+    token,
+    env.githubOAuthAppConfig.dev.clientId,
+    env.githubOAuthAppConfig.dev.clientSecret,
+  );
+};
+
+export const revokeAccessTokenForProd = (token: string) => {
+  return revokeAccessToken(
+    token,
+    env.githubOAuthAppConfig.prod.clientId,
+    env.githubOAuthAppConfig.prod.clientSecret,
+  );
 };
