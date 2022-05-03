@@ -34,6 +34,33 @@ const requestAccessToken = async (
   return data;
 };
 
+const revokeAccessToken = async (token: string) => {
+  const body = new FormData();
+  body.append("access_token", token);
+
+  const response = await fetch(
+    `https://api.github.com/applications/${CLIENT_ID}/grant`,
+    {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Basic ${btoa(`${CLIENT_ID}:${CLIENT_SECRET}`)}`,
+      },
+      body,
+    },
+  );
+  const data = await response.json();
+  console.log("GitHub Response", data);
+
+  if (!data) {
+    throw new Error("Unexpected result from GitHub");
+  } else if (data?.error) {
+    throw data.error;
+  }
+
+  return data;
+};
+
 const commonResponseHeaders = {
   "content-type": "application/json",
   "access-control-allow-origin": "*",
@@ -53,16 +80,20 @@ const createErrorResponse = (error: unknown) => {
   });
 };
 
-const handleLogin = async ({ code }: Record<string, string>) => {
-  return await requestAccessToken(code);
-};
-
 const parseRequest = async (req: Request) => {
   return {
     path: new URL(req.url).pathname,
     method: req.method,
     body: await req.json() ?? {}, // TODO(fix): validate value is Record<string, string>
   };
+};
+
+const handleLogin = async ({ code }: Record<string, string>) => {
+  return await requestAccessToken(code);
+};
+
+const handleLogout = async ({ token }: Record<string, string>) => {
+  return await revokeAccessToken(token);
 };
 
 serve(async (req: Request) => {
@@ -74,6 +105,9 @@ serve(async (req: Request) => {
       case path === "/login" && method === "POST": {
         return createSuccessResponse(await handleLogin(body));
       }
+      case path === "/logout" && method === "POST": {
+        return createSuccessResponse(await handleLogout(body));
+      }
       default: {
         throw new Error("Unsupported operation");
       }
@@ -83,3 +117,13 @@ serve(async (req: Request) => {
     return createErrorResponse(e ?? "Internal Server Error");
   }
 });
+
+// curl -X DELETE -H "Accept: application/json" -u "$CLIENT_ID:$CLIENT_SECRET" -d "{\"access_token\":\"$ACCESS_TOKEN\"}" https://api.github.com/applications/CLIENT_ID/token
+//
+//
+//   curl \
+//   -X DELETE \
+//   -u "5cb413dcbc4c7e0dccf9:af684fda13a70a86a731b7b9bdc5817d857d18a9" \
+//   -H "Accept: application/json" \
+//   https://api.github.com/applications/5cb413dcbc4c7e0dccf9/grant \
+//     -d '{"access_token":"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"}'
