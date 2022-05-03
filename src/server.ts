@@ -24,10 +24,8 @@ export const parseRequest = async (req: Request) => {
     origin: url.origin,
     hostname: url.hostname,
     pathname: url.pathname,
-    referrer: req.referrer,
     method: req.method,
     body: await req.json() ?? {}, // TODO(fix): validate value is Record<string, string>
-    forDevelopment: req.referrer.includes("localhost"),
   };
 
   console.log("Request: ", params);
