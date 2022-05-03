@@ -59,6 +59,7 @@ serve(async (req: Request) => {
   const path = new URL(req.url).pathname;
   const method = req.method;
   const body = await req.json() ?? {}; // TODO(fix): validate value is Record<string, string>
+  console.log("Request: ", { path, method, body });
 
   try {
     if (path === "/login" && method === "POST") {
