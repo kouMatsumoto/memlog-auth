@@ -1,0 +1,12 @@
+= memlog-auth
+
+== 環境構築
+
+=== Deno Deploy
+
+Project URL::
+https://dash.deno.com/projects/memlog-auth/
+
+env登録::
+- CLIENT_ID, CLIENT_SECRET を登録する
+- 値は https://github.com/settings/applications/1893257 から取得
