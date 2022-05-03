@@ -25,7 +25,7 @@ export const parseRequest = async (req: Request) => {
     hostname: url.hostname,
     pathname: url.pathname,
     method: req.method,
-    body: await req.json() ?? {}, // TODO(fix): validate value is Record<string, string>
+    body: (await req.json() ?? {}) as Record<string, any>, // TODO(fix): validate value is Record<string, string>
   };
 
   console.log("Request: ", params);

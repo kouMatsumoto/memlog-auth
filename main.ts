@@ -12,7 +12,7 @@ import {
 } from "./src/server.ts";
 
 const handleLogin = async (
-  { code, isDev }: Record<string, string>,
+  { code, isDev }: Record<string, any>,
 ) => {
   return isDev
     ? await requestAccessTokenForDev(code)
@@ -20,7 +20,7 @@ const handleLogin = async (
 };
 
 const handleLogout = async (
-  { token, isDev }: Record<string, string>,
+  { token, isDev }: Record<string, any>,
 ) => {
   return isDev
     ? await revokeAccessTokenForDev(token)
