@@ -56,26 +56,29 @@ const handleLogin = async ({ code }: Record<string, string>) => {
   return data;
 };
 
+const parseRequest = async (req: Request) => {
+  return {
+    path: new URL(req.url).pathname,
+    method: req.method,
+    body: await req.json() ?? {}, // TODO(fix): validate value is Record<string, string>
+  };
+};
+
 serve(async (req: Request) => {
-  const path = new URL(req.url).pathname;
-  const method = req.method;
-  const body = await req.json() ?? {}; // TODO(fix): validate value is Record<string, string>
+  const { path, method, body } = await parseRequest(req);
   console.log("Request: ", { path, method, body });
 
   try {
-    if (path === "/login" && method === "POST") {
-      return makeApplicationResponse(await handleLogin(body));
-    } else {
-      throw new Error("Unsupported operation");
+    switch (true) {
+      case path === "/login" && method === "POST": {
+        return makeApplicationResponse(await handleLogin(body));
+      }
+      default: {
+        throw new Error("Unsupported operation");
+      }
     }
   } catch (e) {
     console.error("Error", e);
-    return new Response(
-      JSON.stringify({ error: e ?? "Internal Server Error" }),
-      {
-        status: 200,
-        headers: commonResponseHeaders,
-      },
-    );
+    return makeApplicationResponse({ error: e ?? "Internal Server Error" });
   }
 });
