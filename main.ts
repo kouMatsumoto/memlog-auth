@@ -34,13 +34,16 @@ const requestAccessToken = async (
   return data;
 };
 
+/**
+ * https://docs.github.com/en/rest/apps/oauth-applications#delete-an-app-authorization
+ */
 const revokeAccessToken = async (token: string) => {
   const response = await fetch(
     `https://api.github.com/applications/${CLIENT_ID}/grant`,
     {
       method: "DELETE",
       headers: {
-        Accept: "application/json",
+        Accept: "application/vnd.github.v3+json",
         Authorization: `Basic ${btoa(`${CLIENT_ID}:${CLIENT_SECRET}`)}`,
       },
       body: JSON.stringify({ access_token: token }),
