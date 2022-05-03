@@ -17,20 +17,19 @@ type GitHubAccessTokenResponse = {
 const requestAccessToken = async (
   code: string,
 ): Promise<GitHubAccessTokenResponse> => {
-  const data = new FormData();
-  data.append("client_id", CLIENT_ID);
-  data.append("client_secret", CLIENT_SECRET);
-  data.append("code", code);
+  const body = new FormData();
+  body.append("client_id", CLIENT_ID);
+  body.append("client_secret", CLIENT_SECRET);
+  body.append("code", code);
 
   const response = await fetch("https://github.com/login/oauth/access_token", {
     method: "POST",
     headers: { Accept: "application/json" },
-    body: data,
+    body,
   });
-  const result = await response.json();
-  console.log("GitHub result", result);
+  const data = await response.json();
 
-  return result;
+  return { data };
 };
 
 serve(async (req: Request) => {
