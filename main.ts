@@ -5,7 +5,7 @@ const githubOAuthAppConfig = {
   clientSecret: Deno.env.get("CLIENT_SECRET"),
 };
 
-serve(async (req) => {
+serve(async (req: Request) => {
   console.log("request accepted");
 
   try {
@@ -13,7 +13,7 @@ serve(async (req) => {
       throw new Error("Method Not Allowed");
     }
 
-    const { code, redirectUri } = JSON.parse(await req.body.text());
+    const { code, redirectUri } = await req.json();
 
     return new Response(JSON.stringify({ code, redirectUri }), {
       status: 200,
