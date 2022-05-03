@@ -28,7 +28,7 @@ const requestAccessToken = async (
   if (!data) {
     throw new Error("Unexpected result from GitHub");
   } else if (data?.error) {
-    throw data?.error;
+    throw data.error;
   }
 
   return data;
@@ -65,7 +65,8 @@ serve(async (req: Request) => {
   try {
     switch (true) {
       case path === "/login" && method === "POST": {
-        return makeAppResponse(await handleLogin(body));
+        const result = makeAppResponse(await handleLogin(body));
+        console.log("Result: ", result);
       }
       default: {
         throw new Error("Unsupported operation");
