@@ -6,8 +6,6 @@ const githubOAuthAppConfig = {
 };
 
 serve(async (req: Request) => {
-  console.log("request accepted");
-
   try {
     if (req.method !== "POST") {
       throw new Error("Method Not Allowed");
@@ -17,13 +15,19 @@ serve(async (req: Request) => {
 
     return new Response(JSON.stringify({ code }), {
       status: 200,
-      headers: { "content-type": "application/json" },
+      headers: {
+        "content-type": "application/json",
+        "access-control-allow-origin": "*",
+      },
     });
   } catch (e) {
     console.error("Error", e);
     return new Response(JSON.stringify({ error: e }), {
       status: 200,
-      headers: { "content-type": "application/json" },
+      headers: {
+        "content-type": "application/json",
+        "access-control-allow-origin": "*",
+      },
     });
   }
 });
