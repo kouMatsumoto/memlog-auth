@@ -14,7 +14,7 @@ const requestAccessToken = async (code: string) => {
       client_secret: githubOAuthAppConfig.clientSecret,
       code,
     }),
-  }).then(res => res.json());
+  }).then((res) => res.json());
 };
 
 serve(async (req: Request) => {
@@ -25,6 +25,7 @@ serve(async (req: Request) => {
 
     const { code } = await req.json();
     const data = await requestAccessToken(code);
+    console.log("github response", data);
 
     return new Response(JSON.stringify({ data }), {
       status: 200,
