@@ -1,19 +1,25 @@
 import { serve } from "https://deno.land/std@0.114.0/http/server.ts";
 
-const githubOAuthAppConfig = {
-  clientId: Deno.env.get("CLIENT_ID"),
-  clientSecret: Deno.env.get("CLIENT_SECRET"),
-};
+const CLIENT_ID = Deno.env.get("CLIENT_ID");
+const CLIENT_SECRET = Deno.env.get("CLIENT_SECRET");
+if (!CLIENT_ID) {
+  throw new Error("env.CLIENT_ID is not set");
+}
+if (!CLIENT_SECRET) {
+  throw new Error("env.CLIENT_SECRET is not set");
+}
 
 type GitHubAccessTokenResponse = {
   data: { access_token: string; scope: string; token_type: string };
   error?: never;
 } | { data?: never; error: string };
 
-const requestAccessToken = async (code: string): Promise<GitHubAccessTokenResponse> => {
+const requestAccessToken = async (
+  code: string,
+): Promise<GitHubAccessTokenResponse> => {
   const data = new FormData();
-  data.append("client_id", githubOAuthAppConfig.clientId);
-  data.append("client_secret", githubOAuthAppConfig.clientSecret);
+  data.append("client_id", CLIENT_ID);
+  data.append("client_secret", CLIENT_SECRET);
   data.append("code", code);
 
   return await fetch("https://github.com/login/oauth/access_token", {
@@ -44,12 +50,15 @@ serve(async (req: Request) => {
     });
   } catch (e) {
     console.error("Error", e);
-    return new Response(JSON.stringify({ error: e }), {
-      status: 200,
-      headers: {
-        "content-type": "application/json",
-        "access-control-allow-origin": "*",
+    return new Response(
+      JSON.stringify({ error: e ?? "Internal Server Error" }),
+      {
+        status: 200,
+        headers: {
+          "content-type": "application/json",
+          "access-control-allow-origin": "*",
+        },
       },
-    });
+    );
   }
 });
