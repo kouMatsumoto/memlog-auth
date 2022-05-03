@@ -14,7 +14,6 @@ serve(async (req: Request) => {
     }
 
     const { code } = await req.json();
-    console.log(code);
 
     return new Response(JSON.stringify({ code }), {
       status: 200,
