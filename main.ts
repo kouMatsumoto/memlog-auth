@@ -35,7 +35,7 @@ serve(async (req: Request) => {
       throw error;
     }
 
-    return new Response(JSON.stringify(data), {
+    return new Response(JSON.stringify({ data }), {
       status: 200,
       headers: {
         "content-type": "application/json",
