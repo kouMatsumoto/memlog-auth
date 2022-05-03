@@ -9,14 +9,9 @@ if (!CLIENT_SECRET) {
   throw new Error("env.CLIENT_SECRET is not set");
 }
 
-type GitHubAccessTokenResponse = {
-  data: { access_token: string; scope: string; token_type: string };
-  error?: never;
-} | { data?: never; error: string };
-
 const requestAccessToken = async (
   code: string,
-): Promise<GitHubAccessTokenResponse> => {
+): Promise<{ access_token: string; scope: string; token_type: string }> => {
   const body = new FormData();
   body.append("client_id", CLIENT_ID);
   body.append("client_secret", CLIENT_SECRET);
@@ -30,7 +25,13 @@ const requestAccessToken = async (
   const data = await response.json();
   console.log("GitHub Response", data);
 
-  return { data };
+  if (!data) {
+    throw new Error("Unexpected result from GitHub");
+  } else if (data?.error) {
+    throw data?.error;
+  }
+
+  return data;
 };
 
 const commonResponseHeaders = {
@@ -38,7 +39,7 @@ const commonResponseHeaders = {
   "access-control-allow-origin": "*",
 } as const;
 
-const makeApplicationResponse = (body: Record<string, string>) => {
+const makeAppResponse = (body: Record<string, string>) => {
   return new Response(JSON.stringify(body), {
     status: 200,
     headers: commonResponseHeaders,
@@ -46,14 +47,7 @@ const makeApplicationResponse = (body: Record<string, string>) => {
 };
 
 const handleLogin = async ({ code }: Record<string, string>) => {
-  const { data, error } = await requestAccessToken(code);
-  if (error) {
-    throw error;
-  } else if (!data) {
-    throw new Error("Unexpected result from GitHub");
-  }
-
-  return data;
+  return await requestAccessToken(code);
 };
 
 const parseRequest = async (req: Request) => {
@@ -71,7 +65,7 @@ serve(async (req: Request) => {
   try {
     switch (true) {
       case path === "/login" && method === "POST": {
-        return makeApplicationResponse(await handleLogin(body));
+        return makeAppResponse(await handleLogin(body));
       }
       default: {
         throw new Error("Unsupported operation");
@@ -79,6 +73,6 @@ serve(async (req: Request) => {
     }
   } catch (e) {
     console.error("Error", e);
-    return makeApplicationResponse({ error: e ?? "Internal Server Error" });
+    return makeAppResponse({ error: e ?? "Internal Server Error" });
   }
 });
