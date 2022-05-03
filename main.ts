@@ -66,7 +66,7 @@ serve(async (req: Request) => {
     switch (true) {
       case path === "/login" && method === "POST": {
         const result = await handleLogin(body);
-        console.log("Result: ", result);
+        console.log("Result: ", Object.keys(result));
         return makeAppResponse(await handleLogin(body));
       }
       default: {
