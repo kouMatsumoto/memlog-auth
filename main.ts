@@ -16,7 +16,7 @@ serve(async (req) => {
       });
     }
 
-    const { code, redirectUri } = await req.body.json();
+    const { code, redirectUri } = JSON.parse(await req.body.text());
 
     return new Response(JSON.stringify({ code, redirectUri }), {
       headers: { "content-type": "application/json" },
