@@ -65,8 +65,9 @@ serve(async (req: Request) => {
   try {
     switch (true) {
       case path === "/login" && method === "POST": {
-        const result = makeAppResponse(await handleLogin(body));
+        const result = await handleLogin(body);
         console.log("Result: ", result);
+        return makeAppResponse(await handleLogin(body));
       }
       default: {
         throw new Error("Unsupported operation");
