@@ -5,6 +5,18 @@ const githubOAuthAppConfig = {
   clientSecret: Deno.env.get("CLIENT_SECRET"),
 };
 
+const requestAccessToken = async (code: string) => {
+  return await fetch("https://github.com/login/oauth/access_token", {
+    method: "POST",
+    headers: { Accept: "application/json" },
+    body: JSON.stringify({
+      client_id: githubOAuthAppConfig.clientId,
+      client_secret: githubOAuthAppConfig.clientSecret,
+      code,
+    }),
+  }).then(res => res.json());
+};
+
 serve(async (req: Request) => {
   try {
     if (req.method !== "POST") {
@@ -12,8 +24,9 @@ serve(async (req: Request) => {
     }
 
     const { code } = await req.json();
+    const data = await requestAccessToken(code);
 
-    return new Response(JSON.stringify({ code }), {
+    return new Response(JSON.stringify({ data }), {
       status: 200,
       headers: {
         "content-type": "application/json",
