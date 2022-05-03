@@ -22,11 +22,15 @@ const requestAccessToken = async (
   data.append("client_secret", CLIENT_SECRET);
   data.append("code", code);
 
-  return await fetch("https://github.com/login/oauth/access_token", {
+  const response = await fetch("https://github.com/login/oauth/access_token", {
     method: "POST",
     headers: { Accept: "application/json" },
     body: data,
-  }).then((res) => res.json());
+  });
+  const result = await response.json();
+  console.log("GitHub result", result);
+
+  return result;
 };
 
 serve(async (req: Request) => {
