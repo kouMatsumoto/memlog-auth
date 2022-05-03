@@ -28,6 +28,7 @@ const requestAccessToken = async (
     body,
   });
   const data = await response.json();
+  console.log("GitHub Response", data);
 
   return { data };
 };
