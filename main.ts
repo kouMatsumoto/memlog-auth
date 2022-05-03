@@ -13,6 +13,7 @@ const requestAccessToken = async (code: string) => {
       client_id: githubOAuthAppConfig.clientId,
       client_secret: githubOAuthAppConfig.clientSecret,
       code,
+      redirect_uri: "http://localhost:3000"
     }),
   }).then((res) => res.json());
 };
