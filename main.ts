@@ -32,35 +32,47 @@ const requestAccessToken = async (
   return { data };
 };
 
+const commonResponseHeaders = {
+  "content-type": "application/json",
+  "access-control-allow-origin": "*",
+} as const;
+
+const makeApplicationResponse = (body: Record<string, string>) => {
+  return new Response(JSON.stringify(body), {
+    status: 200,
+    headers: commonResponseHeaders,
+  });
+};
+
+const handleLogin = async ({ code }: Record<string, string>) => {
+  const { data, error } = await requestAccessToken(code);
+  if (error) {
+    throw error;
+  } else if (!data) {
+    throw new Error("Unexpected result from GitHub");
+  }
+
+  return data;
+};
+
 serve(async (req: Request) => {
+  const path = new URL(req.url).pathname;
+  const method = req.method;
+  const body = await req.json() ?? {}; // TODO(fix): validate value is Record<string, string>
+
   try {
-    if (req.method !== "POST") {
-      throw new Error("Method Not Allowed");
+    if (path === "/login" && method === "POST") {
+      return makeApplicationResponse(await handleLogin(body));
+    } else {
+      throw new Error("Unsupported operation");
     }
-
-    const { code } = await req.json();
-    const { data, error } = await requestAccessToken(code);
-    if (error) {
-      throw error;
-    }
-
-    return new Response(JSON.stringify({ data }), {
-      status: 200,
-      headers: {
-        "content-type": "application/json",
-        "access-control-allow-origin": "*",
-      },
-    });
   } catch (e) {
     console.error("Error", e);
     return new Response(
       JSON.stringify({ error: e ?? "Internal Server Error" }),
       {
         status: 200,
-        headers: {
-          "content-type": "application/json",
-          "access-control-allow-origin": "*",
-        },
+        headers: commonResponseHeaders,
       },
     );
   }
