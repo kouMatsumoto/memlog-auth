@@ -39,8 +39,15 @@ const commonResponseHeaders = {
   "access-control-allow-origin": "*",
 } as const;
 
-const makeAppResponse = (body: Record<string, string>) => {
-  return new Response(JSON.stringify(body), {
+const createSuccessResponse = (data: Record<string, string>) => {
+  return new Response(JSON.stringify({ data }), {
+    status: 200,
+    headers: commonResponseHeaders,
+  });
+};
+
+const createErrorResponse = (error: unknown) => {
+  return new Response(JSON.stringify({ error }), {
     status: 200,
     headers: commonResponseHeaders,
   });
@@ -67,7 +74,7 @@ serve(async (req: Request) => {
       case path === "/login" && method === "POST": {
         const result = await handleLogin(body);
         console.log("Result: ", Object.keys(result));
-        return makeAppResponse(await handleLogin(body));
+        return createSuccessResponse(await handleLogin(body));
       }
       default: {
         throw new Error("Unsupported operation");
@@ -75,6 +82,6 @@ serve(async (req: Request) => {
     }
   } catch (e) {
     console.error("Error", e);
-    return makeAppResponse({ error: e ?? "Internal Server Error" });
+    return createErrorResponse(e ?? "Internal Server Error");
   }
 });
