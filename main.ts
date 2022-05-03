@@ -30,8 +30,8 @@ const handleLogout = async (
 };
 
 serve(async (req: Request) => {
-  const { hostname, pathname, method, body } = await parseRequest(req);
-  const forDevelopment = hostname === "localhost";
+  const { origin, hostname, pathname, method, body } = await parseRequest(req);
+  const forDevelopment = origin.includes("localhost");
   console.log("Request: ", {
     hostname,
     pathname,

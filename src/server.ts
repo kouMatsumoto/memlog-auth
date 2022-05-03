@@ -21,6 +21,7 @@ export const parseRequest = async (req: Request) => {
   const url = new URL(req.url);
 
   return {
+    origin: url.origin,
     hostname: url.hostname,
     pathname: url.pathname,
     method: req.method,
