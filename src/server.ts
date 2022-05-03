@@ -20,11 +20,16 @@ export const createErrorResponse = (error: unknown) => {
 export const parseRequest = async (req: Request) => {
   const url = new URL(req.url);
 
-  return {
+  const params = {
     origin: url.origin,
     hostname: url.hostname,
     pathname: url.pathname,
     method: req.method,
     body: await req.json() ?? {}, // TODO(fix): validate value is Record<string, string>
+    forDevelopment: url.origin.includes("localhost"),
   };
+
+  console.log("Request: ", params);
+
+  return params;
 };
