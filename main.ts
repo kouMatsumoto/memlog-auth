@@ -5,7 +5,12 @@ const githubOAuthAppConfig = {
   clientSecret: Deno.env.get("CLIENT_SECRET"),
 };
 
-const requestAccessToken = async (code: string) => {
+type GitHubAccessTokenResponse = {
+  data: { access_token: string; scope: string; token_type: string };
+  error?: never;
+} | { data?: never; error: string };
+
+const requestAccessToken = async (code: string): Promise<GitHubAccessTokenResponse> => {
   const data = new FormData();
   data.append("client_id", githubOAuthAppConfig.clientId);
   data.append("client_secret", githubOAuthAppConfig.clientSecret);
@@ -25,10 +30,12 @@ serve(async (req: Request) => {
     }
 
     const { code } = await req.json();
-    const data = await requestAccessToken(code);
-    console.log("github response", data);
+    const { data, error } = await requestAccessToken(code);
+    if (error) {
+      throw error;
+    }
 
-    return new Response(JSON.stringify({ data }), {
+    return new Response(JSON.stringify(data), {
       status: 200,
       headers: {
         "content-type": "application/json",
