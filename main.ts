@@ -46,13 +46,11 @@ const revokeAccessToken = async (token: string) => {
       body: JSON.stringify({ access_token: token }),
     },
   );
-  const data = await response.json();
+  const data = await response.text();
   console.log("GitHub Response", data);
 
   if (!data) {
     throw new Error("Unexpected result from GitHub");
-  } else if (data?.error) {
-    throw data.error;
   }
 
   return data;
@@ -114,13 +112,3 @@ serve(async (req: Request) => {
     return createErrorResponse(e ?? "Internal Server Error");
   }
 });
-
-// curl -X DELETE -H "Accept: application/json" -u "$CLIENT_ID:$CLIENT_SECRET" -d "{\"access_token\":\"$ACCESS_TOKEN\"}" https://api.github.com/applications/CLIENT_ID/token
-//
-//
-//   curl \
-//   -X DELETE \
-//   -u "5cb413dcbc4c7e0dccf9:af684fda13a70a86a731b7b9bdc5817d857d18a9" \
-//   -H "Accept: application/json" \
-//   https://api.github.com/applications/5cb413dcbc4c7e0dccf9/grant \
-//     -d '{"access_token":"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"}'
