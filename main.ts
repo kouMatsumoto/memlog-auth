@@ -10,10 +10,7 @@ const githubOAuthAppConfig = {
 serve(async (req) => {
   try {
     if (req.method !== "POST") {
-      return new Response(JSON.stringify({ error: "Method Not Allowed" }), {
-        status: 405,
-        headers: { "content-type": "application/json" },
-      });
+      throw new Error("Method Not Allowed");
     }
 
     const { code, redirectUri } = JSON.parse(await req.body.text());
@@ -23,7 +20,7 @@ serve(async (req) => {
     });
   } catch (e) {
     return new Response(JSON.stringify({ error: e }), {
-      status: 502,
+      status: 200,
       headers: { "content-type": "application/json" },
     });
   }
