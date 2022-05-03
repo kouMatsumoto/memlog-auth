@@ -6,15 +6,15 @@ const githubOAuthAppConfig = {
 };
 
 const requestAccessToken = async (code: string) => {
+  const data = new FormData();
+  data.append("client_id", githubOAuthAppConfig.clientId);
+  data.append("client_secret", githubOAuthAppConfig.clientSecret);
+  data.append("code", code);
+
   return await fetch("https://github.com/login/oauth/access_token", {
     method: "POST",
     headers: { Accept: "application/json" },
-    body: JSON.stringify({
-      client_id: githubOAuthAppConfig.clientId,
-      client_secret: githubOAuthAppConfig.clientSecret,
-      code,
-      redirect_uri: "http://localhost:3000"
-    }),
+    body: data,
   }).then((res) => res.json());
 };
 
