@@ -8,16 +8,23 @@ const githubOAuthAppConfig = {
 };
 
 serve(async (req) => {
-  if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method Not Allowed" }), {
-      status: 405,
+  try {
+    if (req.method !== "POST") {
+      return new Response(JSON.stringify({ error: "Method Not Allowed" }), {
+        status: 405,
+        headers: { "content-type": "application/json" },
+      });
+    }
+
+    const { code, redirectUri } = await req.body.json();
+
+    return new Response(JSON.stringify({ code, redirectUri }), {
+      headers: { "content-type": "application/json" },
+    });
+  } catch (e) {
+    return new Response(JSON.stringify({ error: e }), {
+      status: 502,
       headers: { "content-type": "application/json" },
     });
   }
-
-  const { code, redirectUri } = await req.body.json();
-
-  return new Response(JSON.stringify({ code, redirectUri }), {
-    headers: { "content-type": "application/json" },
-  });
 });
